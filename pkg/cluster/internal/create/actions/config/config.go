@@ -108,6 +108,8 @@ func (a *Action) Execute(ctx *actions.ActionContext) error {
 			controlPlaneLabels = append(controlPlaneLabels, node.Labels)
 		} else if node.Role == config.WorkerRole {
 			workerLabels = append(workerLabels, node.Labels)
+		} else if node.Role == config.EdgeNodeRole {
+			workerLabels = append(workerLabels, node.Labels)
 		} else {
 			continue
 		}
@@ -142,6 +144,11 @@ func (a *Action) Execute(ctx *actions.ActionContext) error {
 	if err != nil {
 		return err
 	}
+	edgeNodes, err := nodeutils.SelectNodesByRole(allNodes, constants.EdgeNodeRoleValue)
+	if err != nil {
+		return err
+	}
+	workers = append(workers, edgeNodes...)
 	if len(workers) > 0 {
 		// create the workers concurrently
 		for i, node := range workers {

@@ -120,6 +120,14 @@ func planCreation(cfg *config.Cluster, networkName string) (createContainerFuncs
 				}
 				return createContainer(args)
 			})
+		case config.EdgeNodeRole:
+			createContainerFuncs = append(createContainerFuncs, func() error {
+				args, err := runArgsForNode(node, cfg.Networking.IPFamily, name, genericArgs)
+				if err != nil {
+					return err
+				}
+				return createContainer(args)
+			})
 		default:
 			return nil, errors.Errorf("unknown node role: %q", node.Role)
 		}

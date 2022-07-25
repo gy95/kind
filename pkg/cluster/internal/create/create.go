@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/installstorage"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeadminit"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeadmjoin"
+	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeedge"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/loadbalancer"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/waitforready"
 	"sigs.k8s.io/kind/pkg/cluster/internal/kubeconfig"
@@ -62,6 +63,8 @@ type ClusterOptions struct {
 	// Options to control output
 	DisplayUsage      bool
 	DisplaySalutation bool
+	AdvertiseAddress  string
+	ContainerMode     bool
 }
 
 // Cluster creates a cluster
@@ -123,8 +126,9 @@ func Cluster(logger log.Logger, p providers.Provider, opts *ClusterOptions) erro
 		}
 		// add remaining steps
 		actionsToRun = append(actionsToRun,
-			installstorage.NewAction(),                // install StorageClass
-			kubeadmjoin.NewAction(),                   // run kubeadm join
+			installstorage.NewAction(), // install StorageClass
+			kubeadmjoin.NewAction(),    // run kubeadm join
+			// we can add --wait 100s to wait cluster is ready
 			waitforready.NewAction(opts.WaitForReady), // wait for cluster readiness
 		)
 	}
@@ -167,6 +171,16 @@ func Cluster(logger log.Logger, p providers.Provider, opts *ClusterOptions) erro
 	if opts.DisplaySalutation {
 		logger.V(0).Info("")
 		logSalutation(logger)
+	}
+
+	// kubeedge related action, must be put to the last
+	// after kubeconfig is exported with kubeconfig.Export
+	err = kubeedge.NewAction(opts.AdvertiseAddress, opts.ContainerMode).Execute(actionsContext)
+	if err != nil {
+		logger.Errorf("Exec kubeedge action failed: %v\n", err)
+		if !opts.Retain {
+			//_ = delete.Cluster(logger, p, opts.Config.Name, opts.KubeconfigPath)
+		}
 	}
 	return nil
 }

@@ -63,6 +63,12 @@ func (a *Action) Execute(ctx *actions.ActionContext) error {
 	if err != nil {
 		return err
 	}
+
+	edgenode, err := nodeutils.SelectNodesByRole(allNodes, constants.EdgeNodeRoleValue)
+	if err != nil {
+		return err
+	}
+	workers = append(workers, edgenode...)
 	if len(workers) > 0 {
 		if err := joinWorkers(ctx, workers); err != nil {
 			return err

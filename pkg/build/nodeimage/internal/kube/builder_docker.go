@@ -17,6 +17,7 @@ limitations under the License.
 package kube
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,20 +33,22 @@ import (
 
 // dockerBuilder implements Bits for a local docker-ized make / bash build
 type dockerBuilder struct {
-	kubeRoot string
-	arch     string
-	logger   log.Logger
+	kubeRoot     string
+	kubeedgeRoot string
+	arch         string
+	logger       log.Logger
 }
 
 var _ Builder = &dockerBuilder{}
 
 // NewDockerBuilder returns a new Bits backed by the docker-ized build,
 // given kubeRoot, the path to the kubernetes source directory
-func NewDockerBuilder(logger log.Logger, kubeRoot, arch string) (Builder, error) {
+func NewDockerBuilder(logger log.Logger, kubeRoot, kubeedgeRoot, arch string) (Builder, error) {
 	return &dockerBuilder{
-		kubeRoot: kubeRoot,
-		arch:     arch,
-		logger:   logger,
+		kubeRoot:     kubeRoot,
+		kubeedgeRoot: kubeedgeRoot,
+		arch:         arch,
+		logger:       logger,
 	}, nil
 }
 
@@ -141,11 +144,33 @@ func (b *dockerBuilder) Build() (Bits, error) {
 		"_output", "release-images", b.arch,
 	)
 
+	err = b.compileKubeedge()
+	if err != nil {
+		return nil, fmt.Errorf("failed to compile kubeedge: %v", err)
+	}
+
 	return &bits{
 		binaryPaths: []string{
 			filepath.Join(binDir, "kubeadm"),
 			filepath.Join(binDir, "kubelet"),
 			filepath.Join(binDir, "kubectl"),
+
+			// binaries for kubeedge
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "keadm")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "cloudcore")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "edgecore")),
+
+			// CRDs required by KubeEdge
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/devices", "devices_v1alpha2_device.yaml")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/devices", "devices_v1alpha2_devicemodel.yaml")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/reliablesyncs", "cluster_objectsync_v1alpha1.yaml")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/reliablesyncs", "objectsync_v1alpha1.yaml")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/router", "router_v1_rule.yaml")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/router", "router_v1_ruleEndpoint.yaml")),
+
+			// cloudcore.service and edgecore.service
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/tools/edgecore.service")),
+			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/tools/cloudcore.service")),
 		},
 		imagePaths: []string{
 			filepath.Join(imageDir, "kube-apiserver.tar"),
@@ -153,10 +178,46 @@ func (b *dockerBuilder) Build() (Bits, error) {
 			filepath.Join(imageDir, "kube-scheduler.tar"),
 			filepath.Join(imageDir, "kube-proxy.tar"),
 		},
+		// TODO: this version should also include kubeedge version info
 		version: sourceVersionRaw,
 	}, nil
 }
 
 func dockerBuildOsAndArch(arch string) string {
 	return "linux/" + arch
+}
+
+func (b *dockerBuilder) compileKubeedge() error {
+	if err := os.Chdir(b.kubeedgeRoot); err != nil {
+		return err
+	}
+
+	// we will pass through the environment variables, prepending defaults
+	// NOTE: if env are specified multiple times the last one wins
+	// NOTE: currently there are no defaults so this is essentially a deep copy
+	env := append([]string{}, os.Environ()...)
+	// compile kubeedge we cannot use the container build mode, or it will report error: the input device is not a TTY
+	// we will compile kubeedge with local machine environment
+	env = append(env, "BUILD_WITH_CONTAINER=false")
+	// binaries we want to build
+	what := []string{
+		// binaries we use directly
+		"keadm",
+		"cloudcore",
+		"edgecore",
+	}
+
+	// build images + binaries (binaries only on 1.21+)
+	for _, component := range what {
+		cmd := exec.Command("make",
+			"all",
+			"WHAT="+component,
+		).SetEnv(env...)
+		exec.InheritOutput(cmd)
+		if err := cmd.Run(); err != nil {
+			return errors.Wrap(err, fmt.Sprintf("failed to build %s", component))
+		}
+	}
+
+	return nil
 }

@@ -31,6 +31,10 @@ import (
 // this is used by FindSource
 const ImportPath = "k8s.io/kubernetes"
 
+// KubeedgeImportPath is the canonical import path for the kubernetes root package
+// this is used by FindSourceForKubeedge
+const KubeedgeImportPath = "github.com/kubeedge/kubeedge"
+
 // FindSource attempts to locate a kubernetes checkout using go's build package
 func FindSource() (root string, err error) {
 	// look up the source the way go build would
@@ -39,6 +43,16 @@ func FindSource() (root string, err error) {
 		return pkg.Dir, nil
 	}
 	return "", errors.New("could not find kubernetes source")
+}
+
+// FindSourceForKubeedge attempts to locate a kubeedge checkout using go's build package
+func FindSourceForKubeedge() (root string, err error) {
+	// look up the source the way go build would
+	pkg, err := build.Default.Import(KubeedgeImportPath, build.Default.GOPATH, build.FindOnly|build.IgnoreVendor)
+	if err == nil && maybeKubeDir(pkg.Dir) {
+		return pkg.Dir, nil
+	}
+	return "", fmt.Errorf("could not find %s module source under GOPATH=%s: %w", ImportPath, build.Default.GOPATH, err)
 }
 
 // maybeKubeDir returns true if the dir looks plausibly like a kubernetes

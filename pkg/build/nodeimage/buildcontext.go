@@ -40,11 +40,12 @@ import (
 // build configuration
 type buildContext struct {
 	// option fields
-	image     string
-	baseImage string
-	logger    log.Logger
-	arch      string
-	kubeRoot  string
+	image        string
+	baseImage    string
+	logger       log.Logger
+	arch         string
+	kubeRoot     string
+	kubeedgeRoot string
 	// non-option fields
 	builder kube.Builder
 }
@@ -100,8 +101,43 @@ func (c *buildContext) buildImage(bits kube.Bits) error {
 		return err
 	}
 
+	// make kubeedge directory
+	if err = execInBuild("mkdir", "-p", "/etc/kubeedge/config/"); err != nil {
+		c.logger.Errorf("Image build Failed! Failed to make directory /etc/kubeedge/config/ %v", err)
+		return err
+	}
+	if err = execInBuild("mkdir", "-p", "/etc/kubeedge/crds/"); err != nil {
+		c.logger.Errorf("Image build Failed! Failed to make directory /etc/kubeedge/crds/ %v", err)
+		return err
+	}
+
 	// copy artifacts in
 	for _, binary := range bits.BinaryPaths() {
+		// if kubeedge components, will copy kubeedge related files to /etc/kubeedge dir
+		if strings.Contains(path.Dir(binary), "kubeedge") {
+			// kubeedge binaries should be /usr/local/bin, service file expects /usr/local/bin/edgecore and /usr/local/bin/cloudcore
+			nodePath := "/usr/local/bin/" + path.Base(binary)
+			if strings.Contains(path.Base(binary), ".service") {
+				// service file should be put /etc/systemd/system/
+				nodePath = "/etc/systemd/system/" + path.Base(binary)
+			} else if strings.Contains(path.Base(binary), ".yaml") {
+				// CRDs yaml should be /etc/kubeedge/crds/
+				nodePath = "/etc/kubeedge/crds/" + path.Base(binary)
+			}
+
+			if err := exec.Command("docker", "cp", binary, containerID+":"+nodePath).Run(); err != nil {
+				return err
+			}
+			if err := execInBuild("chmod", "+x", nodePath); err != nil {
+				return err
+			}
+			if err := execInBuild("chown", "root:root", nodePath); err != nil {
+				return err
+			}
+
+			continue
+		}
+
 		// TODO: probably should be /usr/local/bin, but the existing kubelet
 		// service file expects /usr/bin/kubelet
 		nodePath := "/usr/bin/" + path.Base(binary)
@@ -149,7 +185,7 @@ func (c *buildContext) buildImage(bits kube.Bits) error {
 		return err
 	}
 
-	c.logger.V(0).Info("Image build completed.")
+	c.logger.V(0).Infof("Image %q build completed.", c.image)
 	return nil
 }
 

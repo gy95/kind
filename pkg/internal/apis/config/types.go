@@ -120,6 +120,8 @@ const (
 	ControlPlaneRole NodeRole = "control-plane"
 	// WorkerRole identifies a node that hosts a Kubernetes worker
 	WorkerRole NodeRole = "worker"
+	// EdgeNodeRole identifies a node that hosts a kubeedge edgecore worker
+	EdgeNodeRole NodeRole = "edge-node"
 )
 
 // Networking contains cluster wide network settings

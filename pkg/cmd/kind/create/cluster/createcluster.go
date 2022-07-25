@@ -34,12 +34,14 @@ import (
 )
 
 type flagpole struct {
-	Name       string
-	Config     string
-	ImageName  string
-	Retain     bool
-	Wait       time.Duration
-	Kubeconfig string
+	Name             string
+	Config           string
+	ImageName        string
+	Retain           bool
+	Wait             time.Duration
+	Kubeconfig       string
+	AdvertiseAddress string
+	ContainerMode    bool
 }
 
 // NewCommand returns a new cobra.Command for cluster creation
@@ -61,6 +63,8 @@ func NewCommand(logger log.Logger, streams cmd.IOStreams) *cobra.Command {
 	cmd.Flags().BoolVar(&flags.Retain, "retain", false, "retain nodes for debugging when cluster creation fails")
 	cmd.Flags().DurationVar(&flags.Wait, "wait", time.Duration(0), "wait for control plane node to be ready (default 0s)")
 	cmd.Flags().StringVar(&flags.Kubeconfig, "kubeconfig", "", "sets kubeconfig path instead of $KUBECONFIG or $HOME/.kube/config")
+	cmd.Flags().StringVar(&flags.AdvertiseAddress, "advertise-address", "", "sets cloudcore advertise-address")
+	cmd.Flags().BoolVar(&flags.ContainerMode, "container-mode", false, "sets cloudcore in container mode")
 	return cmd
 }
 
@@ -86,6 +90,8 @@ func runE(logger log.Logger, streams cmd.IOStreams, flags *flagpole) error {
 		cluster.CreateWithKubeconfigPath(flags.Kubeconfig),
 		cluster.CreateWithDisplayUsage(true),
 		cluster.CreateWithDisplaySalutation(true),
+		cluster.CreateWithAdvertiseAddress(flags.AdvertiseAddress),
+		cluster.CreateWithContainerMode(flags.ContainerMode),
 	); err != nil {
 		return errors.Wrap(err, "failed to create cluster")
 	}

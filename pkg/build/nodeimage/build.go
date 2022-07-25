@@ -55,8 +55,17 @@ func Build(options ...Option) error {
 		ctx.kubeRoot = kubeRoot
 	}
 
+	// locate sources if no kubeedge source was specified
+	if ctx.kubeedgeRoot == "" {
+		kubeedgeRoot, err := kube.FindSourceForKubeedge()
+		if err != nil {
+			return errors.Wrap(err, "error finding kuberoot")
+		}
+		ctx.kubeedgeRoot = kubeedgeRoot
+	}
+
 	// initialize bits
-	builder, err := kube.NewDockerBuilder(ctx.logger, ctx.kubeRoot, ctx.arch)
+	builder, err := kube.NewDockerBuilder(ctx.logger, ctx.kubeRoot, ctx.kubeedgeRoot, ctx.arch)
 	if err != nil {
 		return err
 	}

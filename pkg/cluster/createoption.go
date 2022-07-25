@@ -97,6 +97,22 @@ func CreateWithKubeconfigPath(explicitPath string) CreateOption {
 	})
 }
 
+// CreateWithAdvertiseAddress sets the explicit --advertise-address ip
+func CreateWithAdvertiseAddress(address string) CreateOption {
+	return createOptionAdapter(func(o *internalcreate.ClusterOptions) error {
+		o.AdvertiseAddress = address
+		return nil
+	})
+}
+
+// CreateWithContainerMode sets the explicit --container-mode
+func CreateWithContainerMode(containerMode bool) CreateOption {
+	return createOptionAdapter(func(o *internalcreate.ClusterOptions) error {
+		o.ContainerMode = containerMode
+		return nil
+	})
+}
+
 // CreateWithStopBeforeSettingUpKubernetes enables skipping setting up
 // kubernetes (kubeadm init etc.) after creating node containers
 // This generally shouldn't be used and is only lightly supported, but allows
