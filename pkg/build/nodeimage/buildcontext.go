@@ -154,6 +154,8 @@ func (c *buildContext) buildImage(bits kube.Bits) error {
 
 	// write version
 	// TODO: support grabbing version from a binary instead
+	// 这个应该是k8s的版本号
+	// KubeEdge版本号应该写到另一个文件中
 	if err := createFile(cmder, "/kind/version", bits.Version()); err != nil {
 		return err
 	}

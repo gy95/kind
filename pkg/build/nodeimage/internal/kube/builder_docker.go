@@ -156,21 +156,21 @@ func (b *dockerBuilder) Build() (Bits, error) {
 			filepath.Join(binDir, "kubectl"),
 
 			// binaries for kubeedge
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "keadm")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "cloudcore")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "edgecore")),
+			filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "keadm"),
+			filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "cloudcore"),
+			filepath.Join(b.kubeedgeRoot, "_output/local/bin/", "edgecore"),
 
 			// CRDs required by KubeEdge
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/devices", "devices_v1alpha2_device.yaml")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/devices", "devices_v1alpha2_devicemodel.yaml")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/reliablesyncs", "cluster_objectsync_v1alpha1.yaml")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/reliablesyncs", "objectsync_v1alpha1.yaml")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/router", "router_v1_rule.yaml")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/crds/router", "router_v1_ruleEndpoint.yaml")),
+			filepath.Join(b.kubeedgeRoot, "build/crds/devices", "devices_v1alpha2_device.yaml"),
+			filepath.Join(b.kubeedgeRoot, "build/crds/devices", "devices_v1alpha2_devicemodel.yaml"),
+			filepath.Join(b.kubeedgeRoot, "build/crds/reliablesyncs", "cluster_objectsync_v1alpha1.yaml"),
+			filepath.Join(b.kubeedgeRoot, "build/crds/reliablesyncs", "objectsync_v1alpha1.yaml"),
+			filepath.Join(b.kubeedgeRoot, "build/crds/router", "router_v1_rule.yaml"),
+			filepath.Join(b.kubeedgeRoot, "build/crds/router", "router_v1_ruleEndpoint.yaml"),
 
 			// cloudcore.service and edgecore.service
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/tools/edgecore.service")),
-			filepath.Join(filepath.Join(b.kubeedgeRoot, "build/tools/cloudcore.service")),
+			filepath.Join(b.kubeedgeRoot, "build/tools/edgecore.service"),
+			filepath.Join(b.kubeedgeRoot, "build/tools/cloudcore.service"),
 		},
 		imagePaths: []string{
 			filepath.Join(imageDir, "kube-apiserver.tar"),

@@ -19,6 +19,9 @@ package create
 import (
 	"fmt"
 	"math/rand"
+	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/installstorage"
+	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeadmjoin"
+	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/waitforready"
 	"time"
 
 	"github.com/alessio/shellescape"
@@ -34,12 +37,9 @@ import (
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions"
 	configaction "sigs.k8s.io/kind/pkg/cluster/internal/create/actions/config"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/installcni"
-	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/installstorage"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeadminit"
-	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeadmjoin"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/kubeedge"
 	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/loadbalancer"
-	"sigs.k8s.io/kind/pkg/cluster/internal/create/actions/waitforready"
 	"sigs.k8s.io/kind/pkg/cluster/internal/kubeconfig"
 )
 
@@ -179,7 +179,7 @@ func Cluster(logger log.Logger, p providers.Provider, opts *ClusterOptions) erro
 	if err != nil {
 		logger.Errorf("Exec kubeedge action failed: %v\n", err)
 		if !opts.Retain {
-			//_ = delete.Cluster(logger, p, opts.Config.Name, opts.KubeconfigPath)
+			_ = delete.Cluster(logger, p, opts.Config.Name, opts.KubeconfigPath)
 		}
 	}
 	return nil
