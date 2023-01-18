@@ -22,7 +22,7 @@ import (
 	"sigs.k8s.io/kind/pkg/errors"
 	"sigs.k8s.io/kind/pkg/exec"
 
-	"sigs.k8s.io/kind/pkg/internal/patch"
+	"sigs.k8s.io/kind/pkg/shared/patch"
 )
 
 const containerdConfigPath = "/etc/containerd/config.toml"

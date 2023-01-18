@@ -33,7 +33,7 @@ cd "${REPO_ROOT}"
 
 # run the generators
 # TODO: -o "${REPO_ROOT}/../.." is a weird work-around ...
-bin/deepcopy-gen -i ./pkg/internal/apis/config/ -o "${REPO_ROOT}/../.." -O zz_generated.deepcopy --go-header-file hack/tools/boilerplate.go.txt
+bin/deepcopy-gen -i ./pkg/shared/apis/config/ -o "${REPO_ROOT}/../.." -O zz_generated.deepcopy --go-header-file hack/tools/boilerplate.go.txt
 bin/deepcopy-gen -i ./pkg/apis/config/v1alpha4 -o "${REPO_ROOT}/../.." -O zz_generated.deepcopy --go-header-file hack/tools/boilerplate.go.txt
 
 

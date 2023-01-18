@@ -19,7 +19,7 @@ package nodeimage
 import (
 	"runtime"
 
-	"sigs.k8s.io/kind/pkg/build/nodeimage/internal/kube"
+	"sigs.k8s.io/kind/pkg/build/nodeimage/shared/kube"
 	"sigs.k8s.io/kind/pkg/errors"
 	"sigs.k8s.io/kind/pkg/log"
 )

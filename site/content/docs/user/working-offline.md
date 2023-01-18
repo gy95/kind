@@ -172,4 +172,4 @@ You can find the specific tag currently in use at [loadbalancer source code][loa
 [docker tag]: https://docs.docker.com/engine/reference/commandline/tag/
 [base image]: https://kind.sigs.k8s.io/docs/design/base-image/
 [building the node image]: https://kind.sigs.k8s.io/docs/user/quick-start/#building-images
-[loadbalancer source code]: https://github.com/kubernetes-sigs/kind/blob/main/pkg/cluster/internal/loadbalancer/const.go#L20
+[loadbalancer source code]: https://github.com/kubernetes-sigs/kind/blob/main/pkg/cluster/shared/loadbalancer/const.go#L20

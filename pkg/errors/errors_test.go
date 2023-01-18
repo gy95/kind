@@ -21,7 +21,7 @@ import (
 
 	pkgerrors "github.com/pkg/errors"
 
-	"sigs.k8s.io/kind/pkg/internal/assert"
+	"sigs.k8s.io/kind/pkg/shared/assert"
 )
 
 func TestStackTrace(t *testing.T) {

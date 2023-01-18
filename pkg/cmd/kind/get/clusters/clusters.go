@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/kind/pkg/cmd"
 	"sigs.k8s.io/kind/pkg/log"
 
-	"sigs.k8s.io/kind/pkg/internal/runtime"
+	"sigs.k8s.io/kind/pkg/shared/runtime"
 )
 
 // NewCommand returns a new cobra.Command for getting the list of clusters

@@ -30,12 +30,12 @@ import (
 	"sigs.k8s.io/kind/pkg/errors"
 	"sigs.k8s.io/kind/pkg/log"
 
-	internalcreate "sigs.k8s.io/kind/pkg/cluster/internal/create"
-	internaldelete "sigs.k8s.io/kind/pkg/cluster/internal/delete"
-	"sigs.k8s.io/kind/pkg/cluster/internal/kubeconfig"
-	internalproviders "sigs.k8s.io/kind/pkg/cluster/internal/providers"
-	"sigs.k8s.io/kind/pkg/cluster/internal/providers/docker"
-	"sigs.k8s.io/kind/pkg/cluster/internal/providers/podman"
+	internalcreate "sigs.k8s.io/kind/pkg/cluster/shared/create"
+	internaldelete "sigs.k8s.io/kind/pkg/cluster/shared/delete"
+	"sigs.k8s.io/kind/pkg/cluster/shared/kubeconfig"
+	internalproviders "sigs.k8s.io/kind/pkg/cluster/shared/providers"
+	"sigs.k8s.io/kind/pkg/cluster/shared/providers/docker"
+	"sigs.k8s.io/kind/pkg/cluster/shared/providers/podman"
 )
 
 // DefaultName is the default cluster name

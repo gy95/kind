@@ -27,8 +27,8 @@ import (
 	"sigs.k8s.io/kind/pkg/fs"
 	"sigs.k8s.io/kind/pkg/log"
 
-	"sigs.k8s.io/kind/pkg/internal/cli"
-	"sigs.k8s.io/kind/pkg/internal/runtime"
+	"sigs.k8s.io/kind/pkg/shared/cli"
+	"sigs.k8s.io/kind/pkg/shared/runtime"
 )
 
 type flagpole struct {
